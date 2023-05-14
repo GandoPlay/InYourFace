@@ -204,20 +204,36 @@ class CustomSidebarViewProvider implements vscode.WebviewViewProvider {
       const config = vscode.workspace.getConfiguration('InYourFace');
       const errorUseWarnings = config.get<boolean>('error.usewarnings');
       let [errors, warnings] = getNumErrors();
-      if(errorUseWarnings == true){errors += warnings / 2;}
+      if(errorUseWarnings === true){errors += warnings / 2;}
       let i = "0";
-      if (errors) i = errors < 5 ? "1" : errors < 10 ? "2" : "3";
+      console.log(errors);
+
+      if(errors){
+        console.log(errors);
+        
+        if(errors>=9){
+          i=`9`;
+        }
+        else if(errors<=6 ||errors===8){
+          i=`${errors}`;
+        }
+        else{
+          i=`6`;
+        }
+      }
+      // if (errors) i = errors < 5 ? "1" : errors < 10 ? "2" : "3";
       webviewView.webview.html = this.getHtmlContent(webviewView.webview, i);
     }, 1000);
   }
 
   private getHtmlContent(webview: vscode.Webview, i: string): string {
     const stylesheetUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "assets", "main.css")
+      vscode.Uri.parse(`${this._extensionUri}/assets/main.css`)
     );
 
     const doomFace = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "assets", `doom${i}.png`)
+      vscode.Uri.parse(`${this._extensionUri}/assets/doom${i}.jpeg`)
+
     );
 
     return getHtml(doomFace, stylesheetUri);
@@ -231,7 +247,7 @@ function getHtml(doomFace: vscode.Uri, stylesheetUri: vscode.Uri) {
   const errorUseWarnings = config.get<boolean>('error.usewarnings');
 
   console.log(errorUseWarnings);
-  if(errorUseWarnings == false){
+  if(errorUseWarnings === false){
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -242,7 +258,7 @@ function getHtml(doomFace: vscode.Uri, stylesheetUri: vscode.Uri) {
         <section>
           <img src="${doomFace}">
           <h2 class=${errorNum ? "alarm" : ""}>
-            ${errorNum} ${errorNum === 1 ? "error" : "errors"}
+            ${errorNum} ${errorNum === 0 ? "error" : "errors"}
           </h2>
         </section>
       </body>
